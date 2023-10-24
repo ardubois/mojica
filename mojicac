@@ -1,0 +1,6 @@
+#!/bin/bash
+
+if java Mojica $1; then
+filename="${1%.*}"
+clang -lm $filename.ll -o $filename
+fi

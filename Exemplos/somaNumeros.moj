@@ -1,0 +1,17 @@
+main () do
+  Float acumulador;
+  Float contador;
+  Float valor;
+  Float media;
+  contador <- 0.0;
+
+  valor <- readFloat();
+  while (valor>0.0) do
+    acumulador <- (acumulador + valor);
+    contador <- (contador + 1.0);
+    valor <- readFloat();
+  end
+  print contador;
+  media <- (acumulador/contador);
+  print media;
+end

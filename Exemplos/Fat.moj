@@ -1,0 +1,18 @@
+main () do
+  Float n; Float fat; 
+  n <- readFloat();
+  fat <- fatorial(n);
+  print fat;
+end
+
+fn fatorial(Float n): Float do
+  Float result; Float i;
+  result <- 1.0;
+  i <- 1.0;
+  while(i<=n) do
+        result <- (result * i);
+        i <- (i + 1.0); 
+  end
+  return result;
+end
+  

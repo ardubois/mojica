@@ -1,0 +1,14 @@
+main () do
+  Float x; Float y; Float media;
+  x <- readFloat();
+  y <- readFloat();
+  media <- media(x,y);
+  print media;
+end
+
+fn media(Float x, Float y): Float do
+  Float result;
+  result <- ((x+y)/2.0);  
+  return result;
+end
+  

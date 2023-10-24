@@ -1,0 +1,20 @@
+main () do
+  Float n;  
+  n <- readFloat();
+  print prime(n);
+end
+
+fn prime(Float n): Bool do
+  Float i; Bool isPrime;
+  i <- 2.0;
+  isPrime <- True;
+  while ((i<n) & isPrime) do
+     if((n%i) = 0.0) do
+       isPrime <- False;
+     end
+     i <- (i + 1.0);
+  end 
+  return isPrime;
+end
+  
+

@@ -1,0 +1,12 @@
+main () do
+  Float x; Float y; 
+  x <- readFloat();
+  y <- readFloat();
+  if (x >= y) do
+    print x; 
+  end
+  if (x < y) do
+    print y; 
+  end
+end
+  

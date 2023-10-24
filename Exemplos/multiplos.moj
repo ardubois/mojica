@@ -1,0 +1,9 @@
+main () do
+  Float acumulador; Float n;
+  n <- readFloat();
+  acumulador <- 1.0;
+  while (acumulador<=10.0) do
+    print (acumulador*n);
+    acumulador <- (acumulador+1.0);
+  end
+end

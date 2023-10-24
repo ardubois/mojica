@@ -1,0 +1,273 @@
+PARSER_BEGIN(Mojica)
+import java.io.*;
+import ast.*;
+import inter.*;
+import tc.*;
+import llvm.*;
+import java.util.ArrayList;
+
+public class Mojica {
+
+  public static void main(String args[]) throws ParseException,IOException, Exception {
+    
+    Mojica parser;
+    Prog ast;
+    try{
+      switch (args[0]){
+        case "-inter":
+          testFileName(args[1]);
+          parser = new Mojica(new FileInputStream(args[1]));
+          ast = parser.Prog();
+          TypeChecker.typeCheckProg(ast);
+          InterProg.interpret(ast);
+          break;
+        default:
+          testFileName(args[0]);
+          String fileName = getFileName(args[0]);
+          parser = new Mojica(new FileInputStream(args[0]));
+          ast = parser.Prog();
+          TypeChecker.typeCheckProg(ast);
+          LLVM.genLLVM(fileName,ast);
+          
+      }
+      
+    }
+    catch(TokenMgrError e){
+      System.out.println("------ ERRO LÉXICO ------\n"+e);
+    }
+    catch(ParseException e){
+      System.out.println("------ ERRO SINTÁTICO ------\n"+e);
+    }
+    catch(TypeException e){
+      System.out.println("------ ERRO SEMÂNTICO ------\n"+e);
+    }
+    catch(Exception e){
+      System.out.println(e);
+    }
+  }
+
+  static void testFileName(String filename) throws Exception
+  {
+
+    String ext = filename.substring(filename.length()-4,filename.length());
+    if(!ext.equals(".moj")){ throw new Exception("Arquivo deve possuir a extensão .moj");}
+    
+  }
+  static String getFileName(String filename)
+  {
+    String name = filename.substring(0,filename.length()-4);
+    return name;
+  }
+}
+
+PARSER_END(Mojica)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  <MAIN: "main">
+| <AP:"(">
+| <FP:")">
+| <DO: "do">
+| <END: "end">
+| <FN: "fn">
+| <PV: ";">
+| <TFLOAT: "Float">
+| <TVOID: "Void">
+| <TBOOL: "Bool">
+| <ATRIB: "<-">
+| <VIRG: ",">
+| <IF: "if">
+| <WHILE: "while">
+| <SOMA: "+"> 
+| <MULT: "*"> 
+| <DIV: "/"> 
+| <SUB: "-"> 
+| <AND: "&"> 
+| <OR: "|"> 
+| <MENOR: "<"> 
+| <MAIOR: ">"> 
+| <MAIORIG:">="> 
+| <MENORIG:"<=">
+| <DP: ":">
+|<PRINT: "print">
+|<RETURN: "return">
+|<IG: "=">
+|<TRUE: "True">
+|<FALSE: "False">
+|<REM: "%">
+|<READFLOAT: "readFloat">
+}
+
+TOKEN :
+{
+  <FLOAT: (["0"-"9"])+ "." (["0"-"9"])+ >
+ |< ID: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"])*>
+
+}
+
+//PROG -> MAIN FUNC*
+
+Prog Prog () :
+{Main main; ArrayList<Fun> functions = new ArrayList<Fun>(); Fun fun;}
+{
+
+ main=Main() (fun=Fun() {functions.add(fun);})*
+
+ {return new Prog(main,functions);}
+<EOF> 
+
+}
+
+
+//MAIN -> "main" "(" ")" "do" VARDECL SEQ "end" 
+
+Main Main () :
+{ArrayList<VarDecl> vars=new ArrayList<VarDecl>(); ArrayList<Comando> seq;}
+{
+
+ <MAIN> <AP> <FP> <DO> (vars=VarDecl())? seq=Seq() <END> 
+  {return new Main(vars,seq);}
+}
+
+// VARDECL -> (TYPE ID ";")+
+
+ArrayList<VarDecl> VarDecl() :
+{String type; Token var; ArrayList<VarDecl> decls = new ArrayList<VarDecl>();}
+{
+   (type=Type() var=<ID> <PV> {decls.add(new VarDecl(type,var.image));})+
+   
+   {return decls;}
+
+}
+
+//TYPE -> "Float" | "Bool" | "Void"
+
+
+String Type() :
+{Token t;}
+{
+   (t=<TFLOAT> | t=<TBOOL> | t=<TVOID>) 
+
+   {return t.image;}
+}
+
+
+//SEQ -> COM+
+
+ArrayList<Comando> Seq() :
+{ArrayList<Comando> comandos = new ArrayList<Comando>(); Comando com;}
+{
+   (com=Com() {comandos.add(com);})+ 
+   {return comandos;}
+}
+
+// BLOCO -> "do" SEQ "end"
+
+ArrayList<Comando> Bloco() :
+{ArrayList<Comando> comandos;}
+{
+   <DO> comandos=Seq() <END>
+    {return comandos;}
+}
+
+
+//COM -> ID "<-" EXP ";"
+//            | ID "(" LISTEXP? ")"
+//           | "if" EXP BLOCO
+//           | "while" EXP BLOCO
+//          |  ID "<-" "readLine" "(" ")" ";"
+//          | "print" EXP ";"
+
+
+
+Comando Com() :
+{Token var; Token c;Exp exp; ArrayList<Exp> args=null; Comando comando=null; ArrayList<Comando> bloco;}
+{
+
+ (
+   (var=<ID> ( 
+                 (<ATRIB> ( (<READFLOAT> <AP> <FP> {comando = new CReadInput(var.beginLine,var.image);})
+                            |(exp=Exp() {comando = new CAtribuicao(var.beginLine,var.image,exp);})
+                          )  
+                 )   
+               | ( <AP> (args=ListExp())? <FP> {comando = new CChamadaFun(var.beginLine,var.image,args);}    )
+             ) <PV>
+     )        
+  | c=<IF> exp=Exp() bloco=Bloco() {comando = new CIf(c.beginLine,exp,bloco);}
+  | c=<WHILE> exp=Exp() bloco=Bloco() {comando = new CWhile(c.beginLine,exp,bloco);}
+  | c=<PRINT> exp=Exp() ";" {comando = new CPrint(c.beginLine,exp);}
+  | c=<RETURN> exp=Exp() ";" {comando = new CReturn(c.beginLine,exp);}
+
+ )
+	{return comando;}
+}
+
+//LISTEXP -> EXP  ("," EXP)*
+
+ArrayList<Exp> ListExp () :
+{ArrayList<Exp> exps = new ArrayList<Exp>(); Exp exp;}
+{
+   
+  exp=Exp() {exps.add(exp);} (<VIRG> exp=Exp() {exps.add(exp);})*
+  
+  {return exps;}
+
+}
+
+// EXP -> FLOAT  | ID | ID "(" LISTEXP ")" | "(" EXP OP EXP ")"
+
+Exp Exp() :
+{Exp exp=null; Token te; ArrayList<Exp> listaExp = null; boolean isFunCall=false; Exp arg1,arg2;String op;}
+{
+ ( 
+   (te=<FLOAT> {exp= new EFloat(Float.parseFloat(te.image));})
+   | (<TRUE> {exp = new ETrue();})
+   | (<FALSE> {exp = new EFalse();})
+   |(te=<ID> ( <AP> (listaExp=ListExp())? <FP> {isFunCall=true;})? 
+          {if (isFunCall) {exp = new EChamadaFun(te.image,listaExp);}else{ exp = new EVar(te.image);} }
+     ) 
+   | (<AP> arg1=Exp() op=Op() arg2=Exp() <FP> {exp = new EOpExp(op,arg1,arg2);})
+  
+ )
+ 
+  {return exp;}
+}
+// OP -> "+" | "-" | "/" | "*" | "&" | "|" | ">" | "<" | ">=" | "<="
+String Op():
+{Token op;}
+{
+   (op=<SOMA> | op=<MULT> | op=<DIV> | op=<SUB> | op=<REM>| op=<AND> | op=<OR> | op=<MENOR> | op=<MAIOR> | op=<MAIORIG> | op=<MENORIG> | op=<IG>)
+   
+   {return op.image;}
+
+}
+
+//FUN -> "fn" ID "(" LISTAARG? ")" ":" TYPE "do" VARDECL SEQ "end"
+
+Fun Fun():
+{Token nome; ArrayList<ParamFormalFun> params = new ArrayList<ParamFormalFun>(); String retorno;	ArrayList<VarDecl> vars = new ArrayList<VarDecl>(); ArrayList<Comando> body;}
+{
+   <FN> nome=<ID> <AP> (params=ListArg())? <FP> <DP> retorno=Type() <DO> (vars=VarDecl())? body=Seq() <END> 
+   { return new Fun(nome.image, params, retorno,vars,body); }
+}
+
+
+//ARGLIST -> TYPE ID ( "," TYPE ID )*
+
+ArrayList<ParamFormalFun> ListArg():
+{String type; Token  var; ArrayList<ParamFormalFun> params = new ArrayList<ParamFormalFun>();}
+{
+   type=Type() var=<ID> {params.add(new ParamFormalFun(type,var.image));}
+   (<VIRG> type=Type() var=<ID> {params.add(new ParamFormalFun(type,var.image));})* 
+
+  {return params;}
+}
+

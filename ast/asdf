@@ -1,0 +1,281 @@
+package ast;
+
+
+public class CAtribuicao extends Comando{
+	public int linha;
+	public String var;
+	public Exp exp;
+	
+	public CAtribuicao(int linha,String var, Exp exp)
+	{
+	  this.linha = linha;	
+	  this.var = var;
+	  this.exp = exp;
+	} 
+
+}
+package ast;
+
+import java.util.ArrayList;
+
+public class CChamadaFun extends Comando{
+	public int linha;
+	public String fun;
+	public ArrayList<Exp> args;
+	
+	public CChamadaFun(int linha,String fun, ArrayList<Exp> args)
+	{
+	  this.linha = linha;
+	  this.fun = fun;
+	  this.args = args;
+	} 
+
+}
+package ast;
+
+import java.util.ArrayList;
+
+public class CIf extends Comando{
+	public int linha;
+	public Exp exp;
+	public ArrayList<Comando> bloco;
+	
+	public CIf(int linha,Exp exp, ArrayList<Comando> bloco)
+	{
+	  this.linha = linha;
+	  this.exp = exp;
+	  this.bloco = bloco;
+	} 
+
+}
+package ast;
+
+
+public class Comando{}
+package ast;
+
+import java.util.ArrayList;
+
+public class CPrint extends Comando{
+	public int linha;
+	public Exp exp;
+	
+	
+	public CPrint(int linha,Exp exp)
+	{
+	  this.linha = linha;
+	  this.exp = exp;
+	  
+	} 
+
+}
+package ast;
+
+
+public class CReadInput extends Comando{
+	public int linha;
+	public String var;
+	
+	
+	public CReadInput(int linha,String var)
+	{
+	  this.linha = linha;
+	  this.var = var;
+	} 
+
+}
+package ast;
+
+import java.util.ArrayList;
+
+public class CReturn extends Comando{
+	public int linha;
+	public Exp exp;
+	
+	
+	public CReturn(int linha,Exp exp)
+	{
+	  this.linha = linha;
+	  this.exp = exp;
+	  
+	} 
+
+}
+package ast;
+
+import java.util.ArrayList;
+
+public class CWhile extends Comando{
+	public int linha;
+	public Exp exp;
+	public ArrayList<Comando> bloco;
+	
+	public CWhile(int linha,Exp exp, ArrayList<Comando> bloco)
+	{
+	  this.linha = linha;
+	  this.exp = exp;
+	  this.bloco = bloco;
+	} 
+
+}
+package ast;
+
+import java.util.ArrayList;
+
+public class EChamadaFun extends Exp{
+	public String fun;
+	public ArrayList<Exp> args;
+	
+	public EChamadaFun(String fun, ArrayList<Exp> args)
+	{
+	  this.fun = fun;
+	  this.args = args;
+	} 
+
+}
+package ast;
+
+
+public class EFalse extends Exp{
+	
+	public EFalse()
+	{
+	  super();
+	  
+	} 
+
+}
+package ast;
+
+
+public class EFloat extends Exp{
+	public float value;
+	
+	
+	public EFloat(float value)
+	{
+	  this.value = value;
+	  
+	} 
+
+}
+package ast;
+
+
+public class EOpExp extends Exp{
+	public String op;
+	public Exp arg1;
+	public Exp arg2;
+	
+	
+	public EOpExp(String op, Exp arg1, Exp arg2)
+	{
+	  this.op = op;
+	  this.arg1 = arg1;
+	  this.arg2 = arg2;
+	  
+	} 
+
+}
+package ast;
+
+
+public class ETrue extends Exp{
+	
+	public ETrue()
+	{
+	  super();
+	  
+	} 
+
+}
+package ast;
+
+
+public class EVar extends Exp{
+	public String var;
+	
+	
+	public EVar(String var)
+	{
+	  this.var = var;
+	  
+	} 
+
+}
+package ast;
+
+
+public class Exp{}
+package ast;
+
+import java.util.ArrayList;
+
+public class Fun{
+	public String nome;
+	public ArrayList<ParamFormalFun> params;
+	public String retorno;
+	public ArrayList<VarDecl> vars;
+	public ArrayList<Comando> body;
+	
+	public Fun(String nome,ArrayList<ParamFormalFun> params, String retorno,ArrayList<VarDecl> vars,ArrayList<Comando> body)
+	{
+		this.nome = nome;
+		this.params = params;
+		this.retorno = retorno;
+		this.vars = vars;
+		this.body = body;
+	}
+}
+package ast;
+
+import java.util.ArrayList;
+
+public class Main{
+
+	public ArrayList<VarDecl> vars;
+	public ArrayList<Comando> coms;
+	
+	public Main(ArrayList<VarDecl> vars,ArrayList<Comando> coms)
+	{
+		this.vars = vars;
+		this.coms = coms;
+	}
+
+}
+package ast;
+
+public class ParamFormalFun{
+   public String type;
+   public String var;
+   
+   public ParamFormalFun(String type,String var){
+   	this.type = type;
+   	this.var = var;
+   }
+}
+package ast;
+
+import java.util.ArrayList;
+
+public class Prog{
+    public Main main;
+    public ArrayList<Fun> fun;
+    public Prog(Main main, ArrayList<Fun> fun)
+    {
+        this.main = main;
+        this.fun = fun;
+    }
+}
+
+package ast;
+
+public class VarDecl{
+   public String type;
+   public String var;
+   
+   public VarDecl(String type,String var){
+   	this.type = type;
+   	this.var = var;
+   }
+}

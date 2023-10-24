@@ -1,0 +1,19 @@
+main () do
+  Bool x; Bool y;
+  x <- (((True&True)| False) & (45.0<2.0));
+  y <- ((False | not((55.0>= 44.0)))|x);
+  myprint(not(y));
+end
+fn myprint(Bool n): Void do
+ print n;
+end
+fn not(Bool v): Bool do
+  Bool r;
+  if(v=True)do
+    r <- False;
+  end
+  if(v=False) do
+    r <- True;
+  end
+  return r;
+end

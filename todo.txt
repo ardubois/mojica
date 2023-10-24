@@ -1,0 +1,30 @@
+* Adicionar exceções específicas do interpretador
+* Adicionar exceções específicas da  tradução para llvm
+* o que acontece quando atribui um valor a um parâmentro formal?
+* colocar symbol table do LLVM  no typechecker?
+llvm
+* usar tipo void na llvm para "Void"
+Interpretador
+* adicionar exceçoes para tempo de execução
+
+PROJETOS para alunos:
+- Adicionar do while
+- Adicionar repeat
+- Adicionar for tipo python
+- Adicionar declaracao de variável com inicialização
+- Adicionar atribuição com declaração de variáveis
+- Adicionar vetores
+- Adicionar caracteres e strings
+- strings + operador de concatenação + toString
+- Adicionar um sistema simples de modulo
+- Adicionar classes
+- Adicionar inteiros
+- Adicionar tuplas e pattern matching
+- Adicionar if com else
+- Adicionar cast
+- Adicionar um readBool ou um read que lê valores de tipos diferentes com um cast?
+
+- Operadores
+	- Prioridade e associatividade de operadores gerando a árvore sintática atual
+	- Adicionar ++, --, +=, -= ....
+	- Adicionar números com sinal negativo ou positivo
